@@ -1,33 +1,28 @@
-import { useState } from 'react'
-import Navbar from './components/Navbar'
-import Hero from './components/Hero'
-import About from './components/About'
-import Skills from './components/Skills'
-import Projects from './components/Projects'
-import Experience from './components/Experience'
-import Testimonials from './components/Testimonials'
-import Contact from './components/Contact'
-import Footer from './components/Footer'
-import TargetCursor from './components/TargetCursor'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import { AdminProvider } from './context/AdminContext'
+import Portfolio from './components/Portfolio'
+import AdminLogin from './pages/AdminLogin'
+import AdminDashboard from './pages/AdminDashboard'
+import ProtectedRoute from './components/ProtectedRoute'
 
 function App() {
   return (
-    <div className="min-h-screen bg-retro-yellow">
-      <TargetCursor 
-        spinDuration={2}
-        hideDefaultCursor={true}
-        parallaxOn={true}
-      />
-      <Navbar />
-      <Hero />
-      <About />
-      <Skills />
-      <Projects />
-      <Experience />
-      <Testimonials />
-      <Contact />
-      <Footer />
-    </div>
+    <AdminProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Portfolio />} />
+          <Route path="/admin" element={<AdminLogin />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Router>
+    </AdminProvider>
   )
 }
 

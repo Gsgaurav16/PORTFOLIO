@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion'
 import { Target, Wrench, Trophy } from 'lucide-react'
 import RobotCharacter from './RobotCharacter'
+import { useAdmin } from '../context/AdminContext'
 
 const About = () => {
+  const { about } = useAdmin()
   const scrollToSection = (section) => {
     const element = document.getElementById(section.toLowerCase())
     if (element) {
@@ -18,9 +20,9 @@ const About = () => {
           viewport={{ once: true }}
           className="text-center mb-12"
         >
-          <h2 className="font-pixel text-2xl sm:text-3xl md:text-4xl mb-4">ABOUT • PLAYER</h2>
+          <h2 className="font-pixel text-2xl sm:text-3xl md:text-4xl mb-4">{about.title || 'ABOUT • PLAYER'}</h2>
           <p className="font-body text-base md:text-lg">
-            A game-inspired developer - UI/UX first design - retro arcade polish
+            {about.subtitle || 'A game-inspired developer - UI/UX first design - retro arcade polish'}
           </p>
         </motion.div>
 
@@ -39,7 +41,7 @@ const About = () => {
                 <h3 className="font-pixel text-xl">MISSION</h3>
               </div>
               <p className="font-body mb-6">
-                I craft game-involved web experiences that are fast, tactile, and deliberately playful. Motion-first UI with careful performance optimization and interfaces that feel like a controller in your hands.
+                {about.mission || "I craft game-involved web experiences that are fast, tactile, and deliberately playful. Motion-first UI with careful performance optimization and interfaces that feel like a controller in your hands."}
               </p>
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <motion.button
@@ -74,22 +76,12 @@ const About = () => {
                 <h3 className="font-pixel text-xl">CORE ABILITIES</h3>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-retro-orange rounded-full"></div>
-                  <span className="font-body">Frontend Development</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-retro-orange rounded-full"></div>
-                  <span className="font-body">UI/UX Design</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-retro-orange rounded-full"></div>
-                  <span className="font-body">Performance Optimization</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-retro-orange rounded-full"></div>
-                  <span className="font-body">Creative Problem Solving</span>
-                </div>
+                {(about.coreAbilities || ['Frontend Development', 'UI/UX Design', 'Performance Optimization', 'Creative Problem Solving']).map((ability, index) => (
+                  <div key={index} className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-retro-orange rounded-full"></div>
+                    <span className="font-body">{ability}</span>
+                  </div>
+                ))}
               </div>
             </motion.div>
           </div>
@@ -117,17 +109,17 @@ const About = () => {
             >
               <div className="retro-card bg-retro-green border-retro-green text-center relative">
                 <Trophy className="w-6 h-6 mx-auto mb-2" />
-                <div className="font-pixel text-2xl mb-1">42</div>
+                <div className="font-pixel text-2xl mb-1">{about.stats?.projects || 42}</div>
                 <div className="font-body text-xs">PROJECTS</div>
               </div>
               <div className="retro-card bg-retro-green border-retro-green text-center">
                 <div className="font-pixel text-2xl mb-1">
-                  <span className="text-retro-green bg-retro-yellow px-2 rounded">5</span>
+                  <span className="text-retro-green bg-retro-yellow px-2 rounded">{about.stats?.yearsXP || 5}</span>
                 </div>
                 <div className="font-body text-xs mt-2">YEARS XP</div>
               </div>
               <div className="retro-card bg-retro-green border-retro-green text-center">
-                <div className="font-pixel text-2xl mb-1 text-retro-yellow">128</div>
+                <div className="font-pixel text-2xl mb-1 text-retro-yellow">{about.stats?.videos || 128}</div>
                 <div className="font-body text-xs">VIDEOS</div>
               </div>
             </motion.div>

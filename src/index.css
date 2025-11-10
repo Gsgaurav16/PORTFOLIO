@@ -55,8 +55,15 @@ html {
 
 /* Retro card styles */
 .retro-card {
-  @apply rounded-xl border-2 border-black bg-white p-6;
+  @apply rounded-xl border-2 border-black bg-white;
   box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.2), 0 8px 16px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+}
+
+@media (max-width: 640px) {
+  .retro-card {
+    padding: 1rem;
+  }
 }
 
 .retro-card.bg-retro-green {
@@ -120,4 +127,94 @@ nav {
     padding-right: 1rem;
   }
 }
+
+/* Admin Panel Specific Styles */
+.admin-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 100 !important;
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+.admin-modal-content {
+  position: relative !important;
+  z-index: 101 !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+}
+
+/* Ensure admin sidebar doesn't overlap content */
+@media (max-width: 768px) {
+  .admin-sidebar-mobile {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    width: 16rem !important;
+    z-index: 50 !important;
+    background-color: white !important;
+    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
+/* Fix admin dashboard header overlap */
+.admin-dashboard-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30 !important;
+  background-color: white !important;
+  border-bottom: 2px solid black !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+}
+
+/* Ensure content area has proper spacing below sticky header */
+.admin-dashboard-content {
+  padding-top: 1rem !important;
+  margin-top: 0 !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+@media (min-width: 768px) {
+  .admin-dashboard-content {
+    padding-top: 1.5rem !important;
+  }
+}
+
+/* Prevent content from overlapping with sticky header */
+.admin-dashboard-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.admin-dashboard-container header + div {
+  margin-top: 0 !important;
+  padding-top: 2rem !important;
+}
+
+@media (min-width: 768px) {
+  .admin-dashboard-container header + div {
+    padding-top: 2.5rem !important;
+  }
+}
+
+/* Ensure retro-card content doesn't get cut off */
+.admin-dashboard-container .retro-card {
+  position: relative;
+  z-index: 1;
+  margin-top: 0;
+}
+
+/* Fix for ProjectsManager and other manager components */
+.admin-dashboard-container .retro-card > div {
+  position: relative;
+  z-index: 1;
+}
+
 

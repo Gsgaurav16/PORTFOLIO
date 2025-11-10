@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useAdmin } from '../context/AdminContext'
 
 const Experience = () => {
+  const { experiences } = useAdmin()
   const [selectedExperience, setSelectedExperience] = useState(0)
 
-  const experiences = [
+  const defaultExperiences = [
     {
       company: 'HYPERPLAY STUDIOS',
       role: 'Frontend Developer',
@@ -47,12 +49,14 @@ const Experience = () => {
     },
   ]
 
+  const experiencesList = experiences.length > 0 ? experiences : defaultExperiences
+
   const nextExperience = () => {
-    setSelectedExperience((prev) => (prev + 1) % experiences.length)
+    setSelectedExperience((prev) => (prev + 1) % experiencesList.length)
   }
 
   const prevExperience = () => {
-    setSelectedExperience((prev) => (prev - 1 + experiences.length) % experiences.length)
+    setSelectedExperience((prev) => (prev - 1 + experiencesList.length) % experiencesList.length)
   }
 
   return (
@@ -81,7 +85,7 @@ const Experience = () => {
             <h3 className="font-pixel text-xl mb-2">Switchboard</h3>
             <p className="font-body text-sm text-gray-600 mb-6">Pick a stage to play next</p>
             <div className="space-y-4">
-              {experiences.map((exp, index) => (
+              {experiencesList.map((exp, index) => (
                 <motion.button
                   key={index}
                   whileHover={{ scale: 1.02 }}
@@ -120,29 +124,29 @@ const Experience = () => {
               <div className="mb-4">
                 <h3 className="font-pixel text-xl mb-2">OFF MONITOR</h3>
                 <p className="font-body text-sm text-gray-600">
-                  Current Stage: {String(selectedExperience + 1).padStart(2, '0')}/{String(experiences.length).padStart(2, '0')}
+                  Current Stage: {String(selectedExperience + 1).padStart(2, '0')}/{String(experiencesList.length).padStart(2, '0')}
                 </p>
               </div>
 
               <div className="space-y-4">
                 <div>
                   <h4 className="font-pixel text-xl text-retro-orange mb-1">
-                    {experiences[selectedExperience].company}
+                    {experiencesList[selectedExperience]?.company}
                   </h4>
                   <p className="font-body font-medium mb-1">
-                    {experiences[selectedExperience].role}
+                    {experiencesList[selectedExperience]?.role}
                   </p>
                   <p className="font-body text-sm text-gray-600">
-                    {experiences[selectedExperience].period}
+                    {experiencesList[selectedExperience]?.period}
                   </p>
                 </div>
 
                 <p className="font-body text-gray-700">
-                  {experiences[selectedExperience].description}
+                  {experiencesList[selectedExperience]?.description}
                 </p>
 
                 <div className="space-y-2">
-                  {experiences[selectedExperience].achievements.map((achievement, index) => (
+                  {experiencesList[selectedExperience]?.achievements?.map((achievement, index) => (
                     <div key={index} className="flex items-start gap-2">
                       <span className="text-green-500 mt-1">✓</span>
                       <p className="font-body text-sm">{achievement}</p>
@@ -151,7 +155,7 @@ const Experience = () => {
                 </div>
 
                 <div className="flex flex-wrap gap-2 pt-4">
-                  {experiences[selectedExperience].tags.map((tag) => (
+                  {experiencesList[selectedExperience]?.tags?.map((tag) => (
                     <span
                       key={tag}
                       className="px-3 py-1 bg-retro-yellow text-retro-dark rounded-full text-xs font-body font-medium border-2 border-black"

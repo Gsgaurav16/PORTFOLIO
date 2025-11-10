@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Send, RotateCcw, MessageCircle } from 'lucide-react'
+import { useAdmin } from '../context/AdminContext'
 
 const Contact = () => {
+  const { contact } = useAdmin()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -107,7 +109,7 @@ const Contact = () => {
                 </motion.button>
                 <motion.button
                   type="button"
-                  onClick={() => window.location.href = 'mailto:contact@gauravsharma.dev'}
+                  onClick={() => window.location.href = `mailto:${contact.email || 'contact@gauravsharma.dev'}`}
                   whileHover={{ scale: 1.05 }}
                   className="cursor-target rounded-lg border-2 border-black bg-white text-retro-dark text-[10px] sm:text-xs py-1 px-1.5 sm:px-2 md:px-3 whitespace-nowrap font-pixel"
                 >
@@ -154,10 +156,10 @@ const Contact = () => {
                   👤
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-body text-sm sm:text-base md:text-lg font-semibold text-retro-dark mb-1">Gaurav Sharma</h3>
-                  <p className="font-body text-[10px] sm:text-xs md:text-sm text-gray-600 mb-2 sm:mb-3">Frontend • Creator</p>
+                  <h3 className="font-body text-sm sm:text-base md:text-lg font-semibold text-retro-dark mb-1">{contact.name || 'Gaurav Sharma'}</h3>
+                  <p className="font-body text-[10px] sm:text-xs md:text-sm text-gray-600 mb-2 sm:mb-3">{contact.role || 'Frontend • Creator'}</p>
                   <p className="font-body text-[10px] sm:text-xs md:text-sm text-gray-700 mb-3 sm:mb-4">
-                    Want collabs, streaming hooks, packaging, or consulting? Ping me — I respond quickly.
+                    {contact.bio || 'Want collabs, streaming hooks, packaging, or consulting? Ping me — I respond quickly.'}
                   </p>
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     <motion.button

@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Monitor, Server, Palette, Settings, Box } from 'lucide-react'
+import { useAdmin } from '../context/AdminContext'
 
 const Skills = () => {
+  const { skills } = useAdmin()
   const [activeTab, setActiveTab] = useState('foundations')
 
   const tabs = [
@@ -56,7 +58,7 @@ const Skills = () => {
     },
   }
 
-  const currentSkills = skillsData[activeTab] || skillsData.foundations
+  const currentSkills = skills[activeTab] || skillsData[activeTab] || skillsData.foundations
 
   return (
     <section id="skills" className="py-16 px-4 md:px-6 bg-retro-green text-white">

@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Circle, Coins } from 'lucide-react'
+import { useAdmin } from '../context/AdminContext'
 
 const Testimonials = () => {
+  const { testimonials } = useAdmin()
   const [currentTestimonial, setCurrentTestimonial] = useState(0)
 
-  const testimonials = [
+  const defaultTestimonials = [
     {
       text: "Working with Gaurav was a game-changer. Their attention to detail and creative solutions are second to none. The final product exceeded all our expectations.",
       author: "JANE DOE",
@@ -26,8 +28,10 @@ const Testimonials = () => {
     },
   ]
 
+  const testimonialsList = testimonials.length > 0 ? testimonials : defaultTestimonials
+
   const nextTestimonial = () => {
-    setCurrentTestimonial((prev) => (prev + 1) % testimonials.length)
+    setCurrentTestimonial((prev) => (prev + 1) % testimonialsList.length)
   }
 
   return (
@@ -84,12 +88,12 @@ const Testimonials = () => {
 
                 {/* Testimonial Text */}
                 <p className="font-body text-base md:text-lg text-retro-dark italic px-2">
-                  "{testimonials[currentTestimonial].text}"
+                  "{testimonialsList[currentTestimonial]?.text}"
                 </p>
 
                 {/* Rating */}
                 <div className="flex justify-center gap-1">
-                  {[...Array(testimonials[currentTestimonial].rating)].map((_, i) => (
+                  {[...Array(testimonialsList[currentTestimonial]?.rating || 5)].map((_, i) => (
                     <span key={i} className="text-2xl text-retro-yellow">⭐</span>
                   ))}
                 </div>
@@ -97,10 +101,10 @@ const Testimonials = () => {
                 {/* Author */}
                 <div>
                   <p className="font-pixel text-sm text-retro-dark mb-1">
-                    {testimonials[currentTestimonial].author}
+                    {testimonialsList[currentTestimonial]?.author}
                   </p>
                   <p className="font-body text-sm text-gray-600">
-                    {testimonials[currentTestimonial].role}
+                    {testimonialsList[currentTestimonial]?.role}
                   </p>
                 </div>
               </motion.div>

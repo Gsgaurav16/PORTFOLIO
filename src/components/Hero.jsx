@@ -1,10 +1,12 @@
 import { motion } from 'framer-motion'
 import { ArrowRight, ChevronDown } from 'lucide-react'
 import RobotCharacter from './RobotCharacter'
+import { useAdmin } from '../context/AdminContext'
 
 const Hero = () => {
-  const tags = ['React', 'TypeScript', 'Framer Motion', 'Tailwind', '3D/Assets']
-  const miniCards = [
+  const { hero } = useAdmin()
+  const tags = hero.tags || ['React', 'TypeScript', 'Framer Motion', 'Tailwind', '3D/Assets']
+  const miniCards = hero.miniCards || [
     { title: 'Top Project', desc: 'Live' },
     { title: 'Current Goal', desc: 'Next Level' },
     { title: 'Status', desc: 'Live' },
@@ -35,15 +37,15 @@ const Hero = () => {
             {/* Title */}
             <div className="space-y-2">
               <h1 className="font-body text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                Hi, I'm <span className="text-retro-orange">Gaurav</span>—
+                {hero.title || "Hi, I'm "}<span className="text-retro-orange">{hero.title ? '' : 'Gaurav'}</span>{hero.title ? '' : '—'}
               </h1>
               <h1 className="font-body text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                <span className="text-retro-orange">Dev</span> & Creator
+                <span className="text-retro-orange">{hero.subtitle || 'Dev'}</span> & Creator
               </h1>
             </div>
             
             <p className="font-body text-base md:text-lg text-retro-dark max-w-xl">
-              I build game-inspired web experiences — heavy on performance, control, and delightful micro-interactions. I design interfaces that feel like menus and HUDs in retro games.
+              {hero.description || "I build game-inspired web experiences — heavy on performance, control, and delightful micro-interactions. I design interfaces that feel like menus and HUDs in retro games."}
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">

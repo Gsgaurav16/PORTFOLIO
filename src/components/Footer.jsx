@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
 import { ArrowUp, Mail } from 'lucide-react'
+import { useAdmin } from '../context/AdminContext'
 
 const Footer = () => {
+  const { contact } = useAdmin()
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -19,12 +21,12 @@ const Footer = () => {
             LET'S BUILD SOMETHING EPIC
           </h2>
           <motion.a
-            href="mailto:contact@gauravsharma.dev"
+            href={`mailto:${contact.email || 'contact@gauravsharma.dev'}`}
             whileHover={{ scale: 1.05 }}
             className="cursor-target inline-block retro-button bg-white text-retro-dark flex items-center gap-2 mx-auto text-xs sm:text-sm"
           >
             <Mail className="w-3 h-3 sm:w-4 sm:h-4" />
-            <span className="break-all">contact@gauravsharma.dev</span>
+            <span className="break-all">{contact.email || 'contact@gauravsharma.dev'}</span>
           </motion.a>
         </motion.div>
 
