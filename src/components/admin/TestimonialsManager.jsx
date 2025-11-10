@@ -79,9 +79,7 @@ const TestimonialsManager = () => {
   }
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this testimonial?')) {
-      deleteTestimonial(id)
-    }
+    deleteTestimonial(id)
   }
 
   return (

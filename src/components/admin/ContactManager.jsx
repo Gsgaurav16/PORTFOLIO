@@ -16,7 +16,6 @@ const ContactManager = () => {
   const handleSubmit = (e) => {
     e.preventDefault()
     updateContact(formData)
-    alert('Contact information updated successfully!')
   }
 
   return (

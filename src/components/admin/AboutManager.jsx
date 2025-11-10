@@ -20,7 +20,6 @@ const AboutManager = () => {
       coreAbilities: formData.coreAbilities.split('\n').filter(a => a.trim()),
     }
     updateAbout(aboutData)
-    alert('About section updated successfully!')
   }
 
   return (

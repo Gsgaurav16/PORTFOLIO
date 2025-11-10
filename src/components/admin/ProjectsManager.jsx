@@ -89,9 +89,7 @@ const ProjectsManager = () => {
   }
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this project?')) {
-      deleteProject(id)
-    }
+    deleteProject(id)
   }
 
   return (

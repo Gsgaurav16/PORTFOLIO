@@ -121,6 +121,7 @@ const defaultData = {
   ],
   skills: {
     foundations: {
+      label: 'Foundations',
       skills: ['HTML', 'CSS', 'JAVASCRIPT', 'TYPESCRIPT', 'SASS', 'TAILWIND'],
       achievements: [
         'Semantic HTML with ARIA patterns and component tokens',
@@ -129,6 +130,7 @@ const defaultData = {
       ],
     },
     frontend: {
+      label: 'Frontend',
       skills: ['REACT', 'NEXT.JS', 'VUE', 'GSAP', 'FRAMER MOTION', 'THREE.JS'],
       achievements: [
         'Component-based architecture and state management',
@@ -137,6 +139,7 @@ const defaultData = {
       ],
     },
     backend: {
+      label: 'Backend',
       skills: ['NODE.JS', 'EXPRESS', 'MONGODB', 'POSTGRESQL', 'REST API', 'GRAPHQL'],
       achievements: [
         'RESTful API design and implementation',
@@ -145,6 +148,7 @@ const defaultData = {
       ],
     },
     design: {
+      label: 'Design',
       skills: ['FIGMA', 'ADOBE XD', 'SKETCH', 'PRINCIPLE', 'AFTER EFFECTS', 'BLENDER'],
       achievements: [
         'User-centered design and prototyping',
@@ -153,6 +157,7 @@ const defaultData = {
       ],
     },
     tools: {
+      label: 'Tools & Engines',
       skills: ['GIT', 'GITHUB', 'DOCKER', 'AWS', 'VERCEL', 'NETLIFY'],
       achievements: [
         'Version control and CI/CD pipelines',
@@ -201,15 +206,20 @@ const defaultData = {
 export const AdminProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [data, setData] = useState(defaultData)
+  const [hydrated, setHydrated] = useState(false)
 
   // Load data from localStorage on mount
   useEffect(() => {
+    const savedDataV2 = localStorage.getItem('portfolioData_v2')
     const savedData = localStorage.getItem('portfolioData')
     const savedAuth = localStorage.getItem('adminAuth')
     
-    if (savedData) {
+    if (savedDataV2 || savedData) {
       try {
-        setData(JSON.parse(savedData))
+        const parsed = JSON.parse(savedDataV2 || savedData)
+        if (parsed && typeof parsed === 'object') {
+          setData(parsed)
+        }
       } catch (e) {
         console.error('Error loading data:', e)
       }
@@ -218,12 +228,17 @@ export const AdminProvider = ({ children }) => {
     if (savedAuth === 'true') {
       setIsAuthenticated(true)
     }
+    setHydrated(true)
   }, [])
 
-  // Save data to localStorage whenever it changes
+  // Save data to localStorage whenever it changes (after hydration)
   useEffect(() => {
-    localStorage.setItem('portfolioData', JSON.stringify(data))
-  }, [data])
+    if (!hydrated) return
+    const serialized = JSON.stringify(data)
+    localStorage.setItem('portfolioData_v2', serialized)
+    // keep old key for backward compatibility
+    localStorage.setItem('portfolioData', serialized)
+  }, [data, hydrated])
 
   const login = (password) => {
     // Simple password check (in production, use proper authentication)
@@ -309,15 +324,74 @@ export const AdminProvider = ({ children }) => {
     }))
   }
 
-  // Skills Update
-  const updateSkills = (category, skillsData) => {
+  // Skills CRUD
+  const slugify = (label) =>
+    label
+      .toLowerCase()
+      .trim()
+      .replace(/&/g, 'and')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+
+  const updateSkills = (categoryId, skillsData) => {
     setData(prev => ({
       ...prev,
       skills: {
         ...prev.skills,
-        [category]: skillsData
+        [categoryId]: {
+          ...(prev.skills?.[categoryId] || {}),
+          ...skillsData,
+        }
       }
     }))
+  }
+
+  const addSkillsCategory = (label) => {
+    const base = slugify(label || 'new-category')
+    let id = base
+    let i = 1
+    while (data.skills[id]) {
+      id = `${base}-${i++}`
+    }
+    setData(prev => ({
+      ...prev,
+      skills: {
+        ...prev.skills,
+        [id]: { label: label || 'New Category', skills: [], achievements: [] }
+      }
+    }))
+    return id
+  }
+
+  const renameSkillsCategory = (oldId, newLabel) => {
+    const current = data.skills[oldId]
+    if (!current) return oldId
+    const base = slugify(newLabel || current.label || oldId)
+    let newId = base
+    let i = 1
+    if (newId !== oldId) {
+      while (data.skills[newId]) {
+        newId = `${base}-${i++}`
+      }
+    }
+    setData(prev => {
+      const { [oldId]: removed, ...rest } = prev.skills
+      return {
+        ...prev,
+        skills: {
+          ...rest,
+          [newId]: { ...removed, label: newLabel || removed.label || newId }
+        }
+      }
+    })
+    return newId
+  }
+
+  const deleteSkillsCategory = (categoryId) => {
+    setData(prev => {
+      const { [categoryId]: removed, ...rest } = prev.skills
+      return { ...prev, skills: rest }
+    })
   }
 
   // Hero Update
@@ -367,6 +441,9 @@ export const AdminProvider = ({ children }) => {
     // Skills
     skills: data.skills,
     updateSkills,
+    addSkillsCategory,
+    renameSkillsCategory,
+    deleteSkillsCategory,
     // Hero
     hero: data.hero,
     updateHero,

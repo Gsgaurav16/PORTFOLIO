@@ -89,9 +89,7 @@ const ExperienceManager = () => {
   }
 
   const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this experience?')) {
-      deleteExperience(id)
-    }
+    deleteExperience(id)
   }
 
   return (

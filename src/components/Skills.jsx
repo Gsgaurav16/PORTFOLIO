@@ -1,19 +1,35 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Monitor, Server, Palette, Settings, Box } from 'lucide-react'
 import { useAdmin } from '../context/AdminContext'
 
 const Skills = () => {
   const { skills } = useAdmin()
+  const dynamicTabs = useMemo(() => {
+    const entries = Object.entries(skills || {})
+    if (!entries.length) return []
+    return entries.map(([id, cfg]) => ({
+      id,
+      label: (cfg?.label || id).toUpperCase(),
+      icon: Box,
+    }))
+  }, [skills])
   const [activeTab, setActiveTab] = useState('foundations')
+  useEffect(() => {
+    if (dynamicTabs.length) {
+      setActiveTab(dynamicTabs[0].id)
+    }
+  }, [dynamicTabs])
 
-  const tabs = [
-    { id: 'foundations', label: 'FOUNDATIONS', icon: Box },
-    { id: 'frontend', label: 'FRONTEND', icon: Monitor },
-    { id: 'backend', label: 'BACKEND', icon: Server },
-    { id: 'design', label: 'DESIGN', icon: Palette },
-    { id: 'tools', label: 'TOOLS & ENGINES', icon: Settings },
-  ]
+  const tabs = dynamicTabs.length
+    ? dynamicTabs
+    : [
+        { id: 'foundations', label: 'FOUNDATIONS', icon: Box },
+        { id: 'frontend', label: 'FRONTEND', icon: Monitor },
+        { id: 'backend', label: 'BACKEND', icon: Server },
+        { id: 'design', label: 'DESIGN', icon: Palette },
+        { id: 'tools', label: 'TOOLS & ENGINES', icon: Settings },
+      ]
 
   const skillsData = {
     foundations: {
@@ -58,7 +74,7 @@ const Skills = () => {
     },
   }
 
-  const currentSkills = skills[activeTab] || skillsData[activeTab] || skillsData.foundations
+  const currentSkills = (skills && skills[activeTab]) || skillsData[activeTab] || skillsData.foundations
 
   return (
     <section id="skills" className="py-16 px-4 md:px-6 bg-retro-green text-white">

@@ -1,58 +1,43 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAdmin } from '../../context/AdminContext'
-import { Save, Plus, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Save, Plus, Trash2, ChevronDown, ChevronUp, Edit2 } from 'lucide-react'
 
 const SkillsManager = () => {
-  const { skills, updateSkills } = useAdmin()
-  const [expandedCategories, setExpandedCategories] = useState({
-    foundations: true,
-    frontend: true,
-    backend: true,
-    design: true,
-    tools: true,
-  })
-  const [formData, setFormData] = useState({
-    foundations: { skills: [], achievements: [] },
-    frontend: { skills: [], achievements: [] },
-    backend: { skills: [], achievements: [] },
-    design: { skills: [], achievements: [] },
-    tools: { skills: [], achievements: [] },
-  })
+  const { skills, updateSkills, addSkillsCategory, renameSkillsCategory, deleteSkillsCategory } = useAdmin()
+  const [expandedCategories, setExpandedCategories] = useState({})
+  const [formData, setFormData] = useState({})
+  const [newSkillText, setNewSkillText] = useState({})
+  const [newAchievementText, setNewAchievementText] = useState({})
+  const [isAddingCategory, setIsAddingCategory] = useState(false)
+  const [newCategoryLabel, setNewCategoryLabel] = useState('')
 
-  const categories = [
-    { id: 'foundations', label: 'Foundations', icon: '📚' },
-    { id: 'frontend', label: 'Frontend', icon: '🎨' },
-    { id: 'backend', label: 'Backend', icon: '⚙️' },
-    { id: 'design', label: 'Design', icon: '✨' },
-    { id: 'tools', label: 'Tools & Engines', icon: '🛠️' },
-  ]
+  const categories = Object.keys(skills || {}).map((id) => ({
+    id,
+    label: skills?.[id]?.label || id,
+    icon: '🛠️',
+  }))
 
   // Initialize form data from context
   useEffect(() => {
-    const initialData = {
-      foundations: { 
-        skills: skills?.foundations?.skills || [], 
-        achievements: skills?.foundations?.achievements || [] 
-      },
-      frontend: { 
-        skills: skills?.frontend?.skills || [], 
-        achievements: skills?.frontend?.achievements || [] 
-      },
-      backend: { 
-        skills: skills?.backend?.skills || [], 
-        achievements: skills?.backend?.achievements || [] 
-      },
-      design: { 
-        skills: skills?.design?.skills || [], 
-        achievements: skills?.design?.achievements || [] 
-      },
-      tools: { 
-        skills: skills?.tools?.skills || [], 
-        achievements: skills?.tools?.achievements || [] 
-      },
-    }
-    setFormData(initialData)
+    const initial = {}
+    const expanded = {}
+    const addSkillInit = {}
+    const addAchInit = {}
+    Object.entries(skills || {}).forEach(([id, cfg]) => {
+      initial[id] = {
+        skills: cfg?.skills || [],
+        achievements: cfg?.achievements || [],
+        label: cfg?.label || id,
+      }
+      expanded[id] = true
+      addSkillInit[id] = ''
+      addAchInit[id] = ''
+    })
+    setFormData(initial)
+    setExpandedCategories(expanded)
+    setNewSkillText(addSkillInit)
+    setNewAchievementText(addAchInit)
   }, [skills])
 
   const toggleCategory = (categoryId) => {
@@ -84,75 +69,194 @@ const SkillsManager = () => {
 
   const handleSaveCategory = (categoryId) => {
     updateSkills(categoryId, formData[categoryId])
-    alert(`${categories.find((c) => c.id === categoryId)?.label} updated successfully!`)
   }
 
   const handleSaveAll = () => {
     categories.forEach((cat) => {
-      updateSkills(cat.id, formData[cat.id])
+      const { skills: s = [], achievements: a = [], label } = formData[cat.id] || {}
+      updateSkills(cat.id, { skills: s, achievements: a, label })
     })
-    alert('All skills updated successfully!')
   }
 
   const addSkill = (categoryId) => {
-    const newSkill = prompt('Enter new skill:')
-    if (newSkill && newSkill.trim()) {
-      setFormData((prev) => ({
+    const text = (newSkillText[categoryId] || '').trim()
+    if (!text) return
+    setFormData((prev) => {
+      const next = {
         ...prev,
         [categoryId]: {
           ...prev[categoryId],
-          skills: [...prev[categoryId].skills, newSkill.trim()],
+          skills: [...(prev[categoryId].skills || []), text],
         },
-      }))
-    }
+      }
+      updateSkills(categoryId, next[categoryId])
+      return next
+    })
+    setNewSkillText((prev) => ({ ...prev, [categoryId]: '' }))
   }
 
   const removeSkill = (categoryId, skillIndex) => {
-    setFormData((prev) => ({
-      ...prev,
-      [categoryId]: {
-        ...prev[categoryId],
-        skills: prev[categoryId].skills.filter((_, index) => index !== skillIndex),
-      },
-    }))
-  }
-
-  const addAchievement = (categoryId) => {
-    const newAchievement = prompt('Enter new achievement:')
-    if (newAchievement && newAchievement.trim()) {
-      setFormData((prev) => ({
+    setFormData((prev) => {
+      const next = {
         ...prev,
         [categoryId]: {
           ...prev[categoryId],
-          achievements: [...prev[categoryId].achievements, newAchievement.trim()],
+          skills: prev[categoryId].skills.filter((_, index) => index !== skillIndex),
         },
-      }))
+      }
+      updateSkills(categoryId, next[categoryId])
+      return next
+    })
+  }
+
+  const renameSkill = (categoryId, skillIndex) => {
+    const current = formData[categoryId]?.skills?.[skillIndex] ?? ''
+    const updated = prompt('Rename skill:', current)
+    if (updated && updated.trim() && updated.trim() !== current) {
+      setFormData((prev) => {
+        const nextSkills = [...(prev[categoryId].skills || [])]
+        nextSkills[skillIndex] = updated.trim()
+        const next = {
+          ...prev,
+          [categoryId]: {
+            ...prev[categoryId],
+            skills: nextSkills,
+          },
+        }
+        updateSkills(categoryId, next[categoryId])
+        return next
+      })
     }
   }
 
+  const addAchievement = (categoryId) => {
+    const text = (newAchievementText[categoryId] || '').trim()
+    if (!text) return
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        [categoryId]: {
+          ...prev[categoryId],
+          achievements: [...(prev[categoryId].achievements || []), text],
+        },
+      }
+      updateSkills(categoryId, next[categoryId])
+      return next
+    })
+    setNewAchievementText((prev) => ({ ...prev, [categoryId]: '' }))
+  }
+
   const removeAchievement = (categoryId, achievementIndex) => {
+    setFormData((prev) => {
+      const next = {
+        ...prev,
+        [categoryId]: {
+          ...prev[categoryId],
+          achievements: prev[categoryId].achievements.filter((_, index) => index !== achievementIndex),
+        },
+      }
+      updateSkills(categoryId, next[categoryId])
+      return next
+    })
+  }
+
+  const addCategory = () => {
+    const label = newCategoryLabel.trim()
+    if (!label) return
+    const id = addSkillsCategory(label)
     setFormData((prev) => ({
       ...prev,
-      [categoryId]: {
-        ...prev[categoryId],
-        achievements: prev[categoryId].achievements.filter((_, index) => index !== achievementIndex),
-      },
+      [id]: { label, skills: [], achievements: [] },
     }))
+    setExpandedCategories((prev) => ({ ...prev, [id]: true }))
+    setNewSkillText((prev) => ({ ...prev, [id]: '' }))
+    setNewAchievementText((prev) => ({ ...prev, [id]: '' }))
+    setIsAddingCategory(false)
+    setNewCategoryLabel('')
+  }
+
+  const renameCategory = (categoryId) => {
+    const current = formData[categoryId]?.label || skills?.[categoryId]?.label || categoryId
+    const newLabel = prompt('Rename category:', current)
+    if (!newLabel || !newLabel.trim() || newLabel.trim() === current) return
+    const newId = renameSkillsCategory(categoryId, newLabel.trim())
+    setFormData((prev) => {
+      const { [categoryId]: removed, ...rest } = prev
+      return {
+        ...rest,
+        [newId]: { ...(removed || {}), label: newLabel.trim() },
+      }
+    })
+    setExpandedCategories((prev) => {
+      const { [categoryId]: old, ...rest } = prev
+      return { ...rest, [newId]: old ?? true }
+    })
+  }
+
+  const removeCategory = (categoryId) => {
+    deleteSkillsCategory(categoryId)
+    setFormData((prev) => {
+      const { [categoryId]: removed, ...rest } = prev
+      return rest
+    })
+    setExpandedCategories((prev) => {
+      const { [categoryId]: removed, ...rest } = prev
+      return rest
+    })
   }
 
   return (
     <div className="w-full">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 md:mb-6 gap-4">
         <h2 className="font-pixel text-lg sm:text-xl md:text-2xl text-retro-dark">Skills Management</h2>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleSaveAll}
-          className="cursor-target retro-button bg-retro-green text-white flex items-center gap-2 text-xs sm:text-sm"
-        >
-          <Save className="w-4 h-4" />
-          Save All Categories
-        </motion.button>
+        <div className="flex items-center gap-2">
+          {isAddingCategory ? (
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={newCategoryLabel}
+                onChange={(e) => setNewCategoryLabel(e.target.value)}
+                className="retro-input bg-white text-sm"
+                placeholder="New category name (e.g., Cybersecurity)"
+              />
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={addCategory}
+                className="cursor-target retro-button bg-retro-orange text-white text-xs sm:text-sm"
+              >
+                Add
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => { setIsAddingCategory(false); setNewCategoryLabel('') }}
+                className="cursor-target retro-button bg-gray-200 text-retro-dark text-xs sm:text-sm"
+              >
+                Cancel
+              </motion.button>
+            </div>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsAddingCategory(true)}
+              className="cursor-target retro-button bg-white text-retro-dark flex items-center gap-2 text-xs sm:text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              Add Category
+            </motion.button>
+          )}
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSaveAll}
+            className="cursor-target retro-button bg-retro-green text-white flex items-center gap-2 text-xs sm:text-sm"
+          >
+            <Save className="w-4 h-4" />
+            Save All Categories
+          </motion.button>
+        </div>
       </div>
 
       <div className="space-y-4">
@@ -174,12 +278,36 @@ const SkillsManager = () => {
               >
                 <div className="flex items-center gap-3">
                   <span className="text-2xl">{category.icon}</span>
-                  <h3 className="font-pixel text-lg text-retro-dark">{category.label}</h3>
+                  <h3 className="font-pixel text-lg text-retro-dark">{categoryData.label || category.label}</h3>
                   <span className="text-xs text-gray-500">
                     ({categoryData.skills?.length || 0} skills, {categoryData.achievements?.length || 0} achievements)
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      renameCategory(category.id)
+                    }}
+                    className="cursor-target p-2 hover:bg-yellow-100 rounded transition-colors"
+                    title="Rename category"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      removeCategory(category.id)
+                    }}
+                    className="cursor-target p-2 hover:bg-red-100 text-red-600 rounded transition-colors"
+                    title="Delete category"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -242,6 +370,13 @@ const SkillsManager = () => {
                           >
                             {skill}
                             <button
+                              onClick={() => renameSkill(category.id, index)}
+                              className="cursor-target hover:text-retro-dark/70 transition-colors"
+                              title="Rename skill"
+                            >
+                              <Edit2 className="w-3 h-3" />
+                            </button>
+                            <button
                               onClick={() => removeSkill(category.id, index)}
                               className="cursor-target hover:text-red-600 transition-colors"
                               title="Remove skill"
@@ -252,6 +387,23 @@ const SkillsManager = () => {
                         ))}
                       </div>
                     )}
+                    <div className="mt-3 flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newSkillText[category.id] || ''}
+                        onChange={(e) => setNewSkillText((prev) => ({ ...prev, [category.id]: e.target.value }))}
+                        className="retro-input bg-white flex-1"
+                        placeholder="Add a skill (e.g., CYBERSECURITY)"
+                      />
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => addSkill(category.id)}
+                        className="cursor-target retro-button bg-retro-yellow text-retro-dark"
+                      >
+                        Add
+                      </motion.button>
+                    </div>
                   </div>
 
                   {/* Achievements Section */}
@@ -299,6 +451,23 @@ const SkillsManager = () => {
                         ))}
                       </div>
                     )}
+                    <div className="mt-3 flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={newAchievementText[category.id] || ''}
+                        onChange={(e) => setNewAchievementText((prev) => ({ ...prev, [category.id]: e.target.value }))}
+                        className="retro-input bg-white flex-1"
+                        placeholder="Add an achievement"
+                      />
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => addAchievement(category.id)}
+                        className="cursor-target retro-button bg-retro-yellow text-retro-dark"
+                      >
+                        Add
+                      </motion.button>
+                    </div>
                   </div>
                 </motion.div>
               )}

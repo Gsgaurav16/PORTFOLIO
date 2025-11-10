@@ -20,7 +20,6 @@ const HeroManager = () => {
       tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
     }
     updateHero(heroData)
-    alert('Hero section updated successfully!')
   }
 
   const updateMiniCard = (index, field, value) => {
