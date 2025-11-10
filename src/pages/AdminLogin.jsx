@@ -47,12 +47,12 @@ const AdminLogin = () => {
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="retro-input w-full pl-10 bg-retro-yellow"
+                className="retro-input w-full pl-12 bg-retro-yellow"
                 placeholder="Enter admin password"
                 required
                 autoFocus
@@ -79,11 +79,7 @@ const AdminLogin = () => {
           </motion.button>
         </form>
 
-        <div className="mt-6 text-center">
-          <p className="font-body text-xs text-gray-500">
-            Default password: <code className="bg-gray-100 px-2 py-1 rounded">admin123</code>
-          </p>
-        </div>
+        {/* Default password hint removed for security and cleaner UI */}
       </motion.div>
     </div>
   )

@@ -14,7 +14,8 @@ import {
   Menu,
   X,
   Gamepad2,
-  Eye
+  Eye,
+  Lock
 } from 'lucide-react'
 import ProjectsManager from '../components/admin/ProjectsManager'
 import ExperienceManager from '../components/admin/ExperienceManager'
@@ -25,10 +26,14 @@ import AboutManager from '../components/admin/AboutManager'
 import ContactManager from '../components/admin/ContactManager'
 
 const AdminDashboard = () => {
-  const { logout } = useAdmin()
+  const { logout, changePassword } = useAdmin()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('projects')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isPwdOpen, setIsPwdOpen] = useState(false)
+  const [pwdForm, setPwdForm] = useState({ current: '', next: '', confirm: '' })
+  const [pwdError, setPwdError] = useState('')
+  const [pwdSuccess, setPwdSuccess] = useState('')
 
   useEffect(() => {
     // Close mobile menu when window is resized to desktop
@@ -49,6 +54,32 @@ const AdminDashboard = () => {
   const handleLogout = () => {
     logout()
     navigate('/admin')
+  }
+
+  const handleChangePassword = (e) => {
+    e.preventDefault()
+    setPwdError('')
+    setPwdSuccess('')
+    if (!pwdForm.current || !pwdForm.next || !pwdForm.confirm) {
+      setPwdError('All fields are required.')
+      return
+    }
+    if (pwdForm.next.length < 6) {
+      setPwdError('New password must be at least 6 characters.')
+      return
+    }
+    if (pwdForm.next !== pwdForm.confirm) {
+      setPwdError('New password and confirm do not match.')
+      return
+    }
+    const ok = changePassword(pwdForm.current, pwdForm.next)
+    if (!ok) {
+      setPwdError('Current password is incorrect.')
+      return
+    }
+    setPwdSuccess('Password updated successfully.')
+    setPwdForm({ current: '', next: '', confirm: '' })
+    setTimeout(() => setIsPwdOpen(false), 800)
   }
 
   const menuItems = [
@@ -104,6 +135,16 @@ const AdminDashboard = () => {
             <h1 className="font-pixel text-lg md:text-xl lg:text-2xl text-retro-dark">ADMIN DASHBOARD</h1>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsPwdOpen(true)}
+              className="cursor-target retro-button bg-white text-retro-dark text-xs md:text-sm flex items-center gap-2"
+            >
+              <Lock className="w-4 h-4" />
+              <span className="hidden sm:inline">Change Password</span>
+              <span className="sm:hidden">Password</span>
+            </motion.button>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -233,6 +274,78 @@ const AdminDashboard = () => {
           </motion.div>
         </main>
       </div>
+
+      {/* Change Password Modal */}
+      {isPwdOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100] p-4">
+          <div className="bg-white rounded-xl border-2 border-black p-4 sm:p-6 w-full max-w-md relative">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-pixel text-xl text-retro-dark flex items-center gap-2">
+                <Lock className="w-5 h-5" /> Change Password
+              </h3>
+              <button
+                onClick={() => { setIsPwdOpen(false); setPwdError(''); setPwdSuccess('') }}
+                className="cursor-target p-2 hover:bg-gray-100 rounded"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <div>
+                <label className="block font-body text-sm font-medium mb-1">Current Password</label>
+                <input
+                  type="password"
+                  value={pwdForm.current}
+                  onChange={(e) => setPwdForm({ ...pwdForm, current: e.target.value })}
+                  className="retro-input w-full bg-white"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-body text-sm font-medium mb-1">New Password</label>
+                <input
+                  type="password"
+                  value={pwdForm.next}
+                  onChange={(e) => setPwdForm({ ...pwdForm, next: e.target.value })}
+                  className="retro-input w-full bg-white"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block font-body text-sm font-medium mb-1">Confirm New Password</label>
+                <input
+                  type="password"
+                  value={pwdForm.confirm}
+                  onChange={(e) => setPwdForm({ ...pwdForm, confirm: e.target.value })}
+                  className="retro-input w-full bg-white"
+                  required
+                />
+              </div>
+              {pwdError && <p className="text-red-600 text-xs font-body">{pwdError}</p>}
+              {pwdSuccess && <p className="text-green-600 text-xs font-body">{pwdSuccess}</p>}
+              <div className="flex gap-2 pt-2">
+                <motion.button
+                  type="submit"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="cursor-target retro-button bg-retro-orange text-white flex-1"
+                >
+                  Update
+                </motion.button>
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { setIsPwdOpen(false); setPwdError(''); setPwdSuccess('') }}
+                  className="cursor-target retro-button bg-gray-200 text-retro-dark flex-1"
+                >
+                  Cancel
+                </motion.button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

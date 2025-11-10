@@ -207,12 +207,14 @@ export const AdminProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [data, setData] = useState(defaultData)
   const [hydrated, setHydrated] = useState(false)
+  const [adminPassword, setAdminPassword] = useState('admin123')
 
   // Load data from localStorage on mount
   useEffect(() => {
     const savedDataV2 = localStorage.getItem('portfolioData_v2')
     const savedData = localStorage.getItem('portfolioData')
     const savedAuth = localStorage.getItem('adminAuth')
+    const savedPassword = localStorage.getItem('adminPassword')
     
     if (savedDataV2 || savedData) {
       try {
@@ -228,6 +230,9 @@ export const AdminProvider = ({ children }) => {
     if (savedAuth === 'true') {
       setIsAuthenticated(true)
     }
+    if (savedPassword) {
+      setAdminPassword(savedPassword)
+    }
     setHydrated(true)
   }, [])
 
@@ -241,8 +246,8 @@ export const AdminProvider = ({ children }) => {
   }, [data, hydrated])
 
   const login = (password) => {
-    // Simple password check (in production, use proper authentication)
-    if (password === 'admin123') {
+    // Simple password check (demo only)
+    if (password === (adminPassword || 'admin123')) {
       setIsAuthenticated(true)
       localStorage.setItem('adminAuth', 'true')
       return true
@@ -253,6 +258,16 @@ export const AdminProvider = ({ children }) => {
   const logout = () => {
     setIsAuthenticated(false)
     localStorage.removeItem('adminAuth')
+  }
+  
+  const changePassword = (currentPassword, newPassword) => {
+    // if not yet hydrated, do nothing
+    if (!hydrated) return false
+    const effective = adminPassword || 'admin123'
+    if (currentPassword !== effective) return false
+    setAdminPassword(newPassword)
+    localStorage.setItem('adminPassword', newPassword)
+    return true
   }
 
   // Projects CRUD
@@ -422,6 +437,7 @@ export const AdminProvider = ({ children }) => {
     isAuthenticated,
     login,
     logout,
+    changePassword,
     data,
     // Projects
     projects: data.projects,
