@@ -13,13 +13,17 @@ const HeroManager = () => {
     miniCards: hero.miniCards || [],
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const heroData = {
       ...formData,
       tags: formData.tags.split(',').map(t => t.trim()).filter(t => t),
     }
-    updateHero(heroData)
+    try {
+      await updateHero(heroData)
+    } catch (error) {
+      console.error('Error updating hero:', error)
+    }
   }
 
   const updateMiniCard = (index, field, value) => {

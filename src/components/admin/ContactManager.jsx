@@ -13,9 +13,13 @@ const ContactManager = () => {
     status: contact.status || 'available',
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    updateContact(formData)
+    try {
+      await updateContact(formData)
+    } catch (error) {
+      console.error('Error updating contact:', error)
+    }
   }
 
   return (

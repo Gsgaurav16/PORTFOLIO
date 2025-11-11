@@ -67,7 +67,7 @@ const ProjectsManager = () => {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     const projectData = {
@@ -79,17 +79,24 @@ const ProjectsManager = () => {
       features: formData.features.split('\n').filter(f => f.trim()),
     }
 
-    if (editingProject) {
-      updateProject(editingProject.id, projectData)
-    } else {
-      addProject(projectData)
+    try {
+      if (editingProject) {
+        await updateProject(editingProject.id, projectData)
+      } else {
+        await addProject(projectData)
+      }
+      handleCloseForm()
+    } catch (error) {
+      console.error('Error saving project:', error)
     }
-
-    handleCloseForm()
   }
 
-  const handleDelete = (id) => {
-    deleteProject(id)
+  const handleDelete = async (id) => {
+    try {
+      await deleteProject(id)
+    } catch (error) {
+      console.error('Error deleting project:', error)
+    }
   }
 
   return (

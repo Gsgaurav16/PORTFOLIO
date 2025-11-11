@@ -59,7 +59,7 @@ const TestimonialsManager = () => {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     const testData = {
@@ -69,17 +69,24 @@ const TestimonialsManager = () => {
       rating: parseInt(formData.rating),
     }
 
-    if (editingTest) {
-      updateTestimonial(editingTest.id, testData)
-    } else {
-      addTestimonial(testData)
+    try {
+      if (editingTest) {
+        await updateTestimonial(editingTest.id, testData)
+      } else {
+        await addTestimonial(testData)
+      }
+      handleCloseForm()
+    } catch (error) {
+      console.error('Error saving testimonial:', error)
     }
-
-    handleCloseForm()
   }
 
-  const handleDelete = (id) => {
-    deleteTestimonial(id)
+  const handleDelete = async (id) => {
+    try {
+      await deleteTestimonial(id)
+    } catch (error) {
+      console.error('Error deleting testimonial:', error)
+    }
   }
 
   return (

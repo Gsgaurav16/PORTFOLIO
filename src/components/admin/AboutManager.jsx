@@ -13,13 +13,17 @@ const AboutManager = () => {
     stats: about.stats || { projects: 0, yearsXP: 0, videos: 0 },
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     const aboutData = {
       ...formData,
       coreAbilities: formData.coreAbilities.split('\n').filter(a => a.trim()),
     }
-    updateAbout(aboutData)
+    try {
+      await updateAbout(aboutData)
+    } catch (error) {
+      console.error('Error updating about:', error)
+    }
   }
 
   return (

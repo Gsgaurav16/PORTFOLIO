@@ -67,7 +67,7 @@ const ExperienceManager = () => {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
     const expData = {
@@ -79,17 +79,24 @@ const ExperienceManager = () => {
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
     }
 
-    if (editingExp) {
-      updateExperience(editingExp.id, expData)
-    } else {
-      addExperience(expData)
+    try {
+      if (editingExp) {
+        await updateExperience(editingExp.id, expData)
+      } else {
+        await addExperience(expData)
+      }
+      handleCloseForm()
+    } catch (error) {
+      console.error('Error saving experience:', error)
     }
-
-    handleCloseForm()
   }
 
-  const handleDelete = (id) => {
-    deleteExperience(id)
+  const handleDelete = async (id) => {
+    try {
+      await deleteExperience(id)
+    } catch (error) {
+      console.error('Error deleting experience:', error)
+    }
   }
 
   return (

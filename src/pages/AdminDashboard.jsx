@@ -56,7 +56,7 @@ const AdminDashboard = () => {
     navigate('/admin')
   }
 
-  const handleChangePassword = (e) => {
+  const handleChangePassword = async (e) => {
     e.preventDefault()
     setPwdError('')
     setPwdSuccess('')
@@ -72,14 +72,18 @@ const AdminDashboard = () => {
       setPwdError('New password and confirm do not match.')
       return
     }
-    const ok = changePassword(pwdForm.current, pwdForm.next)
-    if (!ok) {
-      setPwdError('Current password is incorrect.')
-      return
+    try {
+      const ok = await changePassword(pwdForm.current, pwdForm.next)
+      if (!ok) {
+        setPwdError('Current password is incorrect.')
+        return
+      }
+      setPwdSuccess('Password updated successfully.')
+      setPwdForm({ current: '', next: '', confirm: '' })
+      setTimeout(() => setIsPwdOpen(false), 800)
+    } catch (error) {
+      setPwdError('Failed to change password. Please try again.')
     }
-    setPwdSuccess('Password updated successfully.')
-    setPwdForm({ current: '', next: '', confirm: '' })
-    setTimeout(() => setIsPwdOpen(false), 800)
   }
 
   const menuItems = [

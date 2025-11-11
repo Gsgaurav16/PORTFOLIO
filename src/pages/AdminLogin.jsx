@@ -10,15 +10,25 @@ const AdminLogin = () => {
   const { login } = useAdmin()
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     
-    if (login(password)) {
-      navigate('/admin/dashboard')
-    } else {
-      setError('Invalid password!')
-      setPassword('')
+    try {
+      const success = await login(password)
+      if (success) {
+        navigate('/admin/dashboard')
+      } else {
+        setError('Invalid password!')
+        setPassword('')
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+      if (err.message.includes('Cannot connect to server')) {
+        setError('Backend server is not running. Please start it with: cd server && npm run dev')
+      } else {
+        setError(err.message || 'Login failed. Please check your connection.')
+      }
     }
   }
 

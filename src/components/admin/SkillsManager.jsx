@@ -67,142 +67,174 @@ const SkillsManager = () => {
     }))
   }
 
-  const handleSaveCategory = (categoryId) => {
-    updateSkills(categoryId, formData[categoryId])
-  }
-
-  const handleSaveAll = () => {
-    categories.forEach((cat) => {
-      const { skills: s = [], achievements: a = [], label } = formData[cat.id] || {}
-      updateSkills(cat.id, { skills: s, achievements: a, label })
-    })
-  }
-
-  const addSkill = (categoryId) => {
-    const text = (newSkillText[categoryId] || '').trim()
-    if (!text) return
-    setFormData((prev) => {
-      const next = {
-        ...prev,
-        [categoryId]: {
-          ...prev[categoryId],
-          skills: [...(prev[categoryId].skills || []), text],
-        },
-      }
-      updateSkills(categoryId, next[categoryId])
-      return next
-    })
-    setNewSkillText((prev) => ({ ...prev, [categoryId]: '' }))
-  }
-
-  const removeSkill = (categoryId, skillIndex) => {
-    setFormData((prev) => {
-      const next = {
-        ...prev,
-        [categoryId]: {
-          ...prev[categoryId],
-          skills: prev[categoryId].skills.filter((_, index) => index !== skillIndex),
-        },
-      }
-      updateSkills(categoryId, next[categoryId])
-      return next
-    })
-  }
-
-  const renameSkill = (categoryId, skillIndex) => {
-    const current = formData[categoryId]?.skills?.[skillIndex] ?? ''
-    const updated = prompt('Rename skill:', current)
-    if (updated && updated.trim() && updated.trim() !== current) {
-      setFormData((prev) => {
-        const nextSkills = [...(prev[categoryId].skills || [])]
-        nextSkills[skillIndex] = updated.trim()
-        const next = {
-          ...prev,
-          [categoryId]: {
-            ...prev[categoryId],
-            skills: nextSkills,
-          },
-        }
-        updateSkills(categoryId, next[categoryId])
-        return next
-      })
+  const handleSaveCategory = async (categoryId) => {
+    try {
+      await updateSkills(categoryId, formData[categoryId])
+    } catch (error) {
+      console.error('Error saving category:', error)
     }
   }
 
-  const addAchievement = (categoryId) => {
+  const handleSaveAll = async () => {
+    try {
+      await Promise.all(
+        categories.map((cat) => {
+          const { skills: s = [], achievements: a = [], label } = formData[cat.id] || {}
+          return updateSkills(cat.id, { skills: s, achievements: a, label })
+        })
+      )
+    } catch (error) {
+      console.error('Error saving all categories:', error)
+    }
+  }
+
+  const addSkill = async (categoryId) => {
+    const text = (newSkillText[categoryId] || '').trim()
+    if (!text) return
+    const updated = {
+      ...formData[categoryId],
+      skills: [...(formData[categoryId].skills || []), text],
+    }
+    try {
+      await updateSkills(categoryId, updated)
+      setFormData((prev) => ({
+        ...prev,
+        [categoryId]: updated,
+      }))
+      setNewSkillText((prev) => ({ ...prev, [categoryId]: '' }))
+    } catch (error) {
+      console.error('Error adding skill:', error)
+    }
+  }
+
+  const removeSkill = async (categoryId, skillIndex) => {
+    const updated = {
+      ...formData[categoryId],
+      skills: formData[categoryId].skills.filter((_, index) => index !== skillIndex),
+    }
+    try {
+      await updateSkills(categoryId, updated)
+      setFormData((prev) => ({
+        ...prev,
+        [categoryId]: updated,
+      }))
+    } catch (error) {
+      console.error('Error removing skill:', error)
+    }
+  }
+
+  const renameSkill = async (categoryId, skillIndex) => {
+    const current = formData[categoryId]?.skills?.[skillIndex] ?? ''
+    const updated = prompt('Rename skill:', current)
+    if (updated && updated.trim() && updated.trim() !== current) {
+      const nextSkills = [...(formData[categoryId].skills || [])]
+      nextSkills[skillIndex] = updated.trim()
+      const updatedData = {
+        ...formData[categoryId],
+        skills: nextSkills,
+      }
+      try {
+        await updateSkills(categoryId, updatedData)
+        setFormData((prev) => ({
+          ...prev,
+          [categoryId]: updatedData,
+        }))
+      } catch (error) {
+        console.error('Error renaming skill:', error)
+      }
+    }
+  }
+
+  const addAchievement = async (categoryId) => {
     const text = (newAchievementText[categoryId] || '').trim()
     if (!text) return
-    setFormData((prev) => {
-      const next = {
+    const updated = {
+      ...formData[categoryId],
+      achievements: [...(formData[categoryId].achievements || []), text],
+    }
+    try {
+      await updateSkills(categoryId, updated)
+      setFormData((prev) => ({
         ...prev,
-        [categoryId]: {
-          ...prev[categoryId],
-          achievements: [...(prev[categoryId].achievements || []), text],
-        },
-      }
-      updateSkills(categoryId, next[categoryId])
-      return next
-    })
-    setNewAchievementText((prev) => ({ ...prev, [categoryId]: '' }))
+        [categoryId]: updated,
+      }))
+      setNewAchievementText((prev) => ({ ...prev, [categoryId]: '' }))
+    } catch (error) {
+      console.error('Error adding achievement:', error)
+    }
   }
 
-  const removeAchievement = (categoryId, achievementIndex) => {
-    setFormData((prev) => {
-      const next = {
+  const removeAchievement = async (categoryId, achievementIndex) => {
+    const updated = {
+      ...formData[categoryId],
+      achievements: formData[categoryId].achievements.filter((_, index) => index !== achievementIndex),
+    }
+    try {
+      await updateSkills(categoryId, updated)
+      setFormData((prev) => ({
         ...prev,
-        [categoryId]: {
-          ...prev[categoryId],
-          achievements: prev[categoryId].achievements.filter((_, index) => index !== achievementIndex),
-        },
-      }
-      updateSkills(categoryId, next[categoryId])
-      return next
-    })
+        [categoryId]: updated,
+      }))
+    } catch (error) {
+      console.error('Error removing achievement:', error)
+    }
   }
 
-  const addCategory = () => {
+  const addCategory = async () => {
     const label = newCategoryLabel.trim()
     if (!label) return
-    const id = addSkillsCategory(label)
-    setFormData((prev) => ({
-      ...prev,
-      [id]: { label, skills: [], achievements: [] },
-    }))
-    setExpandedCategories((prev) => ({ ...prev, [id]: true }))
-    setNewSkillText((prev) => ({ ...prev, [id]: '' }))
-    setNewAchievementText((prev) => ({ ...prev, [id]: '' }))
-    setIsAddingCategory(false)
-    setNewCategoryLabel('')
+    try {
+      const id = await addSkillsCategory(label)
+      setFormData((prev) => ({
+        ...prev,
+        [id]: { label, skills: [], achievements: [] },
+      }))
+      setExpandedCategories((prev) => ({ ...prev, [id]: true }))
+      setNewSkillText((prev) => ({ ...prev, [id]: '' }))
+      setNewAchievementText((prev) => ({ ...prev, [id]: '' }))
+      setIsAddingCategory(false)
+      setNewCategoryLabel('')
+    } catch (error) {
+      console.error('Error adding category:', error)
+    }
   }
 
-  const renameCategory = (categoryId) => {
+  const renameCategory = async (categoryId) => {
     const current = formData[categoryId]?.label || skills?.[categoryId]?.label || categoryId
     const newLabel = prompt('Rename category:', current)
     if (!newLabel || !newLabel.trim() || newLabel.trim() === current) return
-    const newId = renameSkillsCategory(categoryId, newLabel.trim())
-    setFormData((prev) => {
-      const { [categoryId]: removed, ...rest } = prev
-      return {
-        ...rest,
-        [newId]: { ...(removed || {}), label: newLabel.trim() },
-      }
-    })
-    setExpandedCategories((prev) => {
-      const { [categoryId]: old, ...rest } = prev
-      return { ...rest, [newId]: old ?? true }
-    })
+    try {
+      const newId = await renameSkillsCategory(categoryId, newLabel.trim())
+      setFormData((prev) => {
+        const { [categoryId]: removed, ...rest } = prev
+        return {
+          ...rest,
+          [newId]: { ...(removed || {}), label: newLabel.trim() },
+        }
+      })
+      setExpandedCategories((prev) => {
+        const { [categoryId]: old, ...rest } = prev
+        return { ...rest, [newId]: old ?? true }
+      })
+    } catch (error) {
+      console.error('Error renaming category:', error)
+    }
   }
 
-  const removeCategory = (categoryId) => {
-    deleteSkillsCategory(categoryId)
-    setFormData((prev) => {
-      const { [categoryId]: removed, ...rest } = prev
-      return rest
-    })
-    setExpandedCategories((prev) => {
-      const { [categoryId]: removed, ...rest } = prev
-      return rest
-    })
+  const removeCategory = async (categoryId) => {
+    try {
+      await deleteSkillsCategory(categoryId)
+      setFormData((prev) => {
+        const { [categoryId]: removed, ...rest } = prev
+        return rest
+      })
+      setExpandedCategories((prev) => {
+        const { [categoryId]: removed, ...rest } = prev
+        return rest
+      })
+    } catch (error) {
+      console.error('Error removing category:', error)
+    }
   }
 
   return (
