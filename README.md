@@ -68,7 +68,60 @@ The built files will be in the `dist` directory.
 
 ## 📝 Customization
 
-You can customize the content by editing the component files in `src/components/`. Each component contains the data and can be easily modified.
+You can customize the content through the Admin Panel at `/admin` or by editing the component files in `src/components/`.
+
+## 🚀 Deployment
+
+### Quick Deploy to Vercel
+
+1. **Push to GitHub:**
+   ```bash
+   ./PUSH_TO_GITHUB.sh
+   ```
+   Or manually:
+   ```bash
+   git add .
+   git commit -m "Initial commit"
+   git remote add origin https://github.com/YOUR_USERNAME/REPO_NAME.git
+   git push -u origin main
+   ```
+
+2. **Deploy to Vercel:**
+   - See `GITHUB_VERCEL_SETUP.md` for complete guide
+   - Import repository in Vercel
+   - Set environment variables (see below)
+
+### Environment Variables
+
+**Frontend (.env or Vercel):**
+```
+VITE_API_URL=https://your-backend.vercel.app/api
+```
+
+**Backend (server/.env or Vercel):**
+```
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+FRONTEND_URL=https://your-frontend.vercel.app
+NODE_ENV=production
+PORT=5000
+```
+
+See `.env.example` and `server/.env.example` for templates.
+
+## 🔐 Admin Panel
+
+- Access at `/admin`
+- Default password: `admin123` (change immediately!)
+- Full CRUD operations for all sections
+
+## 📚 Documentation
+
+- `GITHUB_VERCEL_SETUP.md` - Complete GitHub + Vercel deployment guide
+- `PRODUCTION_DEPLOYMENT.md` - General production deployment guide
+- `DEPLOY_QUICK_START.md` - Quick deployment options
+- `SETUP.md` - Development setup instructions
+- `SUPABASE_SETUP.md` - Supabase configuration
 
 ## 🎯 License
 
