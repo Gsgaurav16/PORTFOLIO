@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Send, RotateCcw, MessageCircle } from 'lucide-react'
 import { useAdmin } from '../context/AdminContext'
+import { contactAPI } from '../utils/api'
+import Toast from './Toast'
 
 const Contact = () => {
   const { contact } = useAdmin()
@@ -10,6 +12,20 @@ const Contact = () => {
     email: '',
     message: '',
   })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [toast, setToast] = useState(null)
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
+
+  const scrollToSection = (section) => {
+    const element = document.getElementById(section.toLowerCase())
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   const handleChange = (e) => {
     setFormData({
@@ -18,11 +34,23 @@ const Contact = () => {
     })
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle form submission
-    console.log('Form submitted:', formData)
-    alert('Message sent! (This is a demo)')
+    setIsSubmitting(true)
+
+    try {
+      await contactAPI.sendMessage(formData)
+      showToast('Message sent successfully!', 'success')
+      setFormData({ name: '', email: '', message: '' })
+    } catch (error) {
+      console.error('Error sending message:', error)
+      showToast(
+        error.message || 'Failed to send message. Please try again.',
+        'error'
+      )
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleReset = () => {
@@ -31,6 +59,13 @@ const Contact = () => {
 
   return (
     <section id="contact" className="py-12 sm:py-16 px-4 md:px-6 bg-retro-yellow">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
           {/* Left - Contact Form */}
@@ -92,11 +127,12 @@ const Contact = () => {
               <div className="flex flex-wrap gap-2 items-center">
                 <motion.button
                   type="submit"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="cursor-target rounded-lg border-2 border-black bg-retro-orange text-white text-[10px] sm:text-xs py-1.5 sm:py-2 px-2 sm:px-3 md:px-4 whitespace-nowrap font-pixel"
+                  disabled={isSubmitting}
+                  whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
+                  whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+                  className="cursor-target rounded-lg border-2 border-black bg-retro-orange text-white text-[10px] sm:text-xs py-1.5 sm:py-2 px-2 sm:px-3 md:px-4 whitespace-nowrap font-pixel disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  SEND
+                  {isSubmitting ? 'SENDING...' : 'SEND'}
                 </motion.button>
                 <motion.button
                   type="button"
@@ -115,18 +151,22 @@ const Contact = () => {
                 >
                   Email
                 </motion.button>
-                <motion.button
-                  type="button"
-                  onClick={() => {
-                    // You can add Discord link here
-                    alert('Discord link would open here')
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  className="cursor-target rounded-lg border-2 border-black bg-white text-retro-dark text-[10px] sm:text-xs py-1 px-1.5 sm:px-2 md:px-3 flex items-center gap-1 whitespace-nowrap font-pixel"
-                >
-                  <MessageCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
-                  <span className="hidden sm:inline">Discord</span>
-                </motion.button>
+                {contact.discord && (
+                  <motion.button
+                    type="button"
+                    onClick={() => {
+                      if (contact.discord) {
+                        window.open(contact.discord, '_blank', 'noopener,noreferrer')
+                      }
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="cursor-target rounded-lg border-2 border-black bg-white text-retro-dark text-[10px] sm:text-xs py-1 px-1.5 sm:px-2 md:px-3 flex items-center gap-1 whitespace-nowrap font-pixel"
+                  >
+                    <MessageCircle className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                    <span className="hidden sm:inline">Discord</span>
+                  </motion.button>
+                )}
               </div>
             </form>
           </motion.div>
@@ -164,20 +204,27 @@ const Contact = () => {
                   <div className="flex flex-wrap gap-1.5 sm:gap-2">
                     <motion.button
                       onClick={() => {
-                        // You can add pricing page or modal here
-                        alert('Pricing information would be displayed here')
+                        scrollToSection('contact')
+                        showToast('Contact me for pricing information!', 'success')
                       }}
                       whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       className="cursor-target rounded-lg border-2 border-black bg-white text-retro-dark text-[10px] sm:text-xs py-1 px-1.5 sm:px-2 md:px-3 font-pixel"
                     >
                       Pricing
                     </motion.button>
                     <motion.button
                       onClick={() => {
-                        // You can add availability info here
-                        alert('Availability information would be displayed here')
+                        const status = contact.status || 'available'
+                        const statusMessages = {
+                          available: 'I\'m available for new projects!',
+                          busy: 'Currently busy, but open to discussions.',
+                          away: 'Away at the moment, will respond soon.'
+                        }
+                        showToast(statusMessages[status] || 'Contact me to discuss availability!', 'success')
                       }}
                       whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
                       className="cursor-target rounded-lg border-2 border-black bg-white text-retro-dark text-[10px] sm:text-xs py-1 px-1.5 sm:px-2 md:px-3 font-pixel"
                     >
                       Availability

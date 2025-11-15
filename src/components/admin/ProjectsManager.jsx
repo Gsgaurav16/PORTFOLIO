@@ -25,6 +25,7 @@ const ProjectsManager = () => {
     name: '',
     description: '',
     shortDescription: '',
+    url: '',
     tags: '',
     features: '',
   })
@@ -37,6 +38,7 @@ const ProjectsManager = () => {
         name: project.name || '',
         description: project.description || '',
         shortDescription: project.shortDescription || '',
+        url: project.url || '',
         tags: project.tags?.join(', ') || '',
         features: project.features?.join('\n') || '',
       })
@@ -47,6 +49,7 @@ const ProjectsManager = () => {
         name: '',
         description: '',
         shortDescription: '',
+        url: '',
         tags: '',
         features: '',
       })
@@ -75,6 +78,7 @@ const ProjectsManager = () => {
       name: formData.name,
       description: formData.description,
       shortDescription: formData.shortDescription,
+      url: formData.url.trim() || null,
       tags: formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
       features: formData.features.split('\n').filter(f => f.trim()),
     }
@@ -238,6 +242,20 @@ const ProjectsManager = () => {
                     className="retro-input w-full bg-white"
                     required
                   />
+                </div>
+
+                <div>
+                  <label className="block font-body text-sm font-medium mb-2">Project URL (optional)</label>
+                  <input
+                    type="url"
+                    value={formData.url}
+                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                    className="retro-input w-full bg-white"
+                    placeholder="https://example.com or https://github.com/username/project"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Link to live demo, GitHub repository, or project page
+                  </p>
                 </div>
 
                 <div>

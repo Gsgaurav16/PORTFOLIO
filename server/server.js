@@ -7,6 +7,7 @@ import testimonialsRouter from './routes/testimonials.js'
 import skillsRouter from './routes/skills.js'
 import sectionsRouter from './routes/sections.js'
 import authRouter from './routes/auth.js'
+import contactRouter from './routes/contact.js'
 
 dotenv.config()
 
@@ -28,6 +29,7 @@ app.use('/api/testimonials', testimonialsRouter)
 app.use('/api/skills', skillsRouter)
 app.use('/api/sections', sectionsRouter)
 app.use('/api/auth', authRouter)
+app.use('/api/contact', contactRouter)
 
 // Health check
 app.get('/api/health', (req, res) => {

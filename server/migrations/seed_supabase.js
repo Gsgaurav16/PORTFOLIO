@@ -76,6 +76,7 @@ async function seed() {
         role: 'Frontend • Creator',
         bio: 'Want collabs, streaming hooks, packaging, or consulting? Ping me — I respond quickly.',
         email: 'contact@gauravsharma.dev',
+        discord: 'https://discord.com/users/YOUR_USER_ID', // Replace with your Discord user ID or server invite
         status: 'available',
       }, { onConflict: 'id' })
     

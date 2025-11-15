@@ -152,6 +152,7 @@ router.get('/contact', async (req, res) => {
         role: '',
         bio: '',
         email: '',
+        discord: '',
         status: ''
       })
     }
@@ -161,6 +162,7 @@ router.get('/contact', async (req, res) => {
       role: data.role,
       bio: data.bio,
       email: data.email,
+      discord: data.discord || '',
       status: data.status
     })
   } catch (error) {
@@ -171,7 +173,7 @@ router.get('/contact', async (req, res) => {
 
 router.put('/contact', async (req, res) => {
   try {
-    const { name, role, bio, email, status } = req.body
+    const { name, role, bio, email, discord, status } = req.body
     
     const { data, error } = await supabase
       .from('contact')
@@ -181,6 +183,7 @@ router.put('/contact', async (req, res) => {
         role,
         bio,
         email,
+        discord: discord || null,
         status
       }, { onConflict: 'id' })
       .select()
@@ -193,6 +196,7 @@ router.put('/contact', async (req, res) => {
       role: data.role,
       bio: data.bio,
       email: data.email,
+      discord: data.discord || '',
       status: data.status
     })
   } catch (error) {

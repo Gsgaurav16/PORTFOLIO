@@ -100,6 +100,11 @@ export const authAPI = {
     }),
 }
 
+// Contact API
+export const contactAPI = {
+  sendMessage: (data) => apiRequest('/contact/send', { method: 'POST', body: data }),
+}
+
 // Get all portfolio data at once
 export const getPortfolioData = async () => {
   try {

@@ -2,10 +2,17 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
 import { useAdmin } from '../context/AdminContext'
+import Toast from './Toast'
 
 const Projects = () => {
   const { projects } = useAdmin()
   const [currentProject, setCurrentProject] = useState(0)
+  const [toast, setToast] = useState(null)
+
+  const showToast = (message, type = 'error') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 3000)
+  }
 
   const scrollToSection = (section) => {
     const element = document.getElementById(section.toLowerCase())
@@ -80,6 +87,13 @@ const Projects = () => {
 
   return (
     <section id="projects" className="py-16 px-6 bg-retro-yellow">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -231,9 +245,12 @@ const Projects = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        // You can add actual project link here
-                        console.log('Viewing project:', projectsList[currentProject]?.title)
-                        alert(`Opening ${projectsList[currentProject]?.title}`)
+                        const project = projectsList[currentProject]
+                        if (project?.url) {
+                          window.open(project.url, '_blank', 'noopener,noreferrer')
+                        } else {
+                          showToast('No project URL available. Add a URL in the admin panel.', 'error')
+                        }
                       }}
                       className="cursor-target w-full bg-white border-2 border-black rounded-lg px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-center gap-2 font-pixel text-xs sm:text-sm text-retro-dark mt-auto"
                     >

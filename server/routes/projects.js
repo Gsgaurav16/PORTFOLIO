@@ -20,6 +20,7 @@ router.get('/', async (req, res) => {
       name: row.name,
       description: row.description,
       shortDescription: row.short_description,
+      url: row.url || null,
       tags: row.tags || [],
       features: row.features || []
     }))
@@ -52,6 +53,7 @@ router.get('/:id', async (req, res) => {
       name: data.name,
       description: data.description,
       shortDescription: data.short_description,
+      url: data.url || null,
       tags: data.tags || [],
       features: data.features || []
     })
@@ -64,7 +66,7 @@ router.get('/:id', async (req, res) => {
 // POST create project
 router.post('/', async (req, res) => {
   try {
-    const { title, name, description, shortDescription, tags, features } = req.body
+    const { title, name, description, shortDescription, url, tags, features } = req.body
     
     const { data, error } = await supabase
       .from('projects')
@@ -73,6 +75,7 @@ router.post('/', async (req, res) => {
         name,
         description,
         short_description: shortDescription,
+        url: url || null,
         tags: tags || [],
         features: features || []
       })
@@ -87,6 +90,7 @@ router.post('/', async (req, res) => {
       name: data.name,
       description: data.description,
       shortDescription: data.short_description,
+      url: data.url || null,
       tags: data.tags || [],
       features: data.features || []
     })
@@ -100,7 +104,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const { title, name, description, shortDescription, tags, features } = req.body
+    const { title, name, description, shortDescription, url, tags, features } = req.body
     
     const { data, error } = await supabase
       .from('projects')
@@ -109,6 +113,7 @@ router.put('/:id', async (req, res) => {
         name,
         description,
         short_description: shortDescription,
+        url: url || null,
         tags: tags || [],
         features: features || []
       })
@@ -127,6 +132,7 @@ router.put('/:id', async (req, res) => {
       name: data.name,
       description: data.description,
       shortDescription: data.short_description,
+      url: data.url || null,
       tags: data.tags || [],
       features: data.features || []
     })

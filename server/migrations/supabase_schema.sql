@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS projects (
   name VARCHAR(255) NOT NULL,
   description TEXT,
   short_description TEXT,
+  url VARCHAR(500),
   tags JSONB DEFAULT '[]'::jsonb,
   features JSONB DEFAULT '[]'::jsonb,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
@@ -78,6 +79,7 @@ CREATE TABLE IF NOT EXISTS contact (
   role VARCHAR(255),
   bio TEXT,
   email VARCHAR(255),
+  discord VARCHAR(500),
   status VARCHAR(50),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );

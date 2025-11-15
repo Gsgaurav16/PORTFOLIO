@@ -10,6 +10,7 @@ const ContactManager = () => {
     role: contact.role || '',
     bio: contact.bio || '',
     email: contact.email || '',
+    discord: contact.discord || '',
     status: contact.status || 'available',
   })
 
@@ -69,6 +70,20 @@ const ContactManager = () => {
             className="retro-input w-full bg-white"
             required
           />
+        </div>
+
+        <div>
+          <label className="block font-body text-sm font-medium mb-2">Discord Link</label>
+          <input
+            type="url"
+            value={formData.discord}
+            onChange={(e) => setFormData({ ...formData, discord: e.target.value })}
+            className="retro-input w-full bg-white"
+            placeholder="https://discord.com/users/YOUR_USER_ID or https://discord.gg/SERVER_INVITE"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Discord user profile link or server invite link
+          </p>
         </div>
 
         <div>
